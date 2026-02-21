@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Home, Layers, Server, CreditCard } from 'lucide-react';
 import ShaderBackground from '../components/ui/shader-background';
 import DisplayCards from '../components/ui/display-cards';
 import AnimatedArchitecture from '../components/ui/cyber-architecture';
+import { NavBar } from '../components/ui/tubelight-navbar';
+import LaserFlow from '../components/ui/laser-flow';
+import { PricingSection } from '../components/ui/pricing';
 
 const LandingPage = () => {
   useEffect(() => {
@@ -46,30 +50,37 @@ const LandingPage = () => {
     };
   }, []);
 
+  const navItems = [
+    { name: 'Home', url: '#', icon: Home },
+    { name: 'Features', url: '#features', icon: Layers },
+    { name: 'Architecture', url: '#architecture', icon: Server },
+    { name: 'Pricing', url: '#pricing', icon: CreditCard },
+  ];
+
   return (
     <div className="bg-background-base text-gray-100 transition-colors duration-300 overflow-x-hidden min-h-screen">
-      <nav className="fixed w-full z-50 transition-all duration-300 bg-[#050507]/80 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex-shrink-0 flex items-center gap-2">
-              <span className="material-icons text-primary text-3xl animate-pulse-slow">storage</span>
-              <span className="font-bold text-xl tracking-tight text-white">SQL<span className="text-primary">Architect</span></span>
-            </div>
-            <div className="hidden md:flex space-x-8">
-              <a className="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#features">Features</a>
-              <a className="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#architecture">Architecture</a>
-              <a className="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#pricing">Pricing</a>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link className="text-gray-300 hover:text-primary transition-colors text-sm font-medium hidden sm:block" to="/login">Login</Link>
-              <Link className="relative group overflow-hidden bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.8)]" to="/register">
-                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer"></span>
-                Get Started
-              </Link>
-            </div>
+      {/* Single unified floating navbar */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 pt-4">
+        <div className="flex items-center gap-4 bg-[#050507]/60 border border-white/10 backdrop-blur-xl py-2 px-3 rounded-full shadow-lg">
+          {/* Logo */}
+          <div className="flex items-center gap-1.5 pl-2 pr-3 border-r border-white/10">
+            <span className="material-icons text-primary text-xl">storage</span>
+            <span className="font-bold text-sm tracking-tight text-white hidden sm:inline">SQL<span className="text-primary">Architect</span></span>
+          </div>
+
+          {/* Nav Items */}
+          <NavBar items={navItems} />
+
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-3 pl-3 border-l border-white/10">
+            <Link className="text-gray-300 hover:text-primary transition-colors text-sm font-medium hidden sm:block" to="/login">Login</Link>
+            <Link className="relative group overflow-hidden bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.8)] whitespace-nowrap" to="/register">
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer"></span>
+              Get Started
+            </Link>
           </div>
         </div>
-      </nav>
+      </div>
 
       <section className="relative pt-36 pb-24 lg:pt-48 lg:pb-40 overflow-hidden hero-bg">
         {/* WebGL Shader Background */}
@@ -259,26 +270,96 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+      <section className="py-24 bg-background-base border-t border-white/5" id="pricing">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <PricingSection
+            heading="Plans that Scale with You"
+            description="Whether you're just starting out or building enterprise data pipelines, our flexible pricing has you covered."
+            plans={[
+              {
+                name: 'Starter',
+                info: 'For individuals & small teams',
+                price: { monthly: 0, yearly: 0 },
+                features: [
+                  { text: '50 queries/month' },
+                  { text: '1 database connection' },
+                  { text: 'Basic SQL generation', tooltip: 'Simple SELECT and JOIN queries' },
+                  { text: 'Community support' },
+                  { text: 'Query history (7 days)' },
+                ],
+                btn: { text: 'Get Started Free', href: '/register' },
+              },
+              {
+                highlighted: true,
+                name: 'Pro',
+                info: 'For growing teams',
+                price: { monthly: 49, yearly: Math.round(49 * 12 * 0.85) },
+                features: [
+                  { text: 'Unlimited queries' },
+                  { text: '10 database connections' },
+                  { text: 'Advanced SQL (CTEs, window)', tooltip: 'Complex queries with CTEs, subqueries, and window functions' },
+                  { text: 'Priority support', tooltip: '24/7 chat and email support' },
+                  { text: 'Query history (unlimited)' },
+                  { text: 'Schema auto-detection' },
+                  { text: 'CSV/JSON export' },
+                ],
+                btn: { text: 'Start Pro Trial', href: '/register' },
+              },
+              {
+                name: 'Enterprise',
+                info: 'For large organizations',
+                price: { monthly: 199, yearly: Math.round(199 * 12 * 0.8) },
+                features: [
+                  { text: 'Everything in Pro' },
+                  { text: 'Unlimited connections' },
+                  { text: 'SSO & SAML', tooltip: 'Enterprise-grade single sign-on' },
+                  { text: 'SOC2 & HIPAA compliant' },
+                  { text: 'Dedicated account manager' },
+                  { text: 'Custom SageMaker model' },
+                  { text: 'SLA guarantee (99.99%)' },
+                ],
+                btn: { text: 'Contact Sales', href: '/register' },
+              },
+            ]}
+          />
+        </div>
+      </section>
 
-      <section className="py-20 bg-background-base">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl overflow-hidden p-10 md:p-16 text-center shadow-[0_0_50px_rgba(168,85,247,0.3)] reveal-on-scroll border border-white/10">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 to-[#0a0a0c] z-0"></div>
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-0"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-r from-primary/10 via-transparent to-primary/10 rounded-full blur-3xl animate-pulse-slow z-0"></div>
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to democratize your data?</h2>
-              <p className="text-purple-100 text-lg mb-10 max-w-2xl mx-auto">Join 500+ companies using AI SQL Cloud Architect to speed up analytics by 10x.</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link className="bg-white text-primary px-8 py-3.5 rounded-full text-lg font-bold hover:bg-gray-200 transition-colors shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]" to="/register">
-                  Get Started Free
-                </Link>
-                <Link className="bg-transparent border border-white text-white px-8 py-3.5 rounded-full text-lg font-bold hover:bg-white/10 transition-colors hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]" to="/register">
-                  Contact Sales
-                </Link>
-              </div>
-              <p className="mt-6 text-sm text-purple-200">No credit card required. 14-day free trial.</p>
+      <section className="relative py-24 overflow-hidden" style={{ backgroundColor: '#060010' }}>
+        {/* LaserFlow as section background */}
+        <LaserFlow
+          color="#a855f7"
+          horizontalBeamOffset={0.05}
+          verticalBeamOffset={0.0}
+          horizontalSizing={0.6}
+          verticalSizing={2}
+          wispDensity={1.2}
+          wispSpeed={12}
+          wispIntensity={4}
+          flowSpeed={0.3}
+          flowStrength={0.2}
+          fogIntensity={0.35}
+          fogScale={0.3}
+          fogFallSpeed={0.5}
+          decay={1.1}
+          falloffStart={1.3}
+        />
+
+        {/* Card floating on top */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="rounded-3xl overflow-hidden p-12 md:p-20 text-center bg-[#0a0a0c]/80 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] reveal-on-scroll">
+            <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary border border-primary/30 rounded-full px-4 py-1 mb-6 bg-primary/5">Limited Time Offer</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-5 leading-tight">Ready to democratize <br className="hidden md:block" />your data?</h2>
+            <p className="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">Join 500+ companies using AI SQL Cloud Architect to speed up analytics by 10x.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link className="bg-white text-[#0a0a0c] px-8 py-3.5 rounded-full text-lg font-bold hover:bg-gray-100 transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]" to="/register">
+                Get Started Free
+              </Link>
+              <Link className="bg-transparent border border-white/20 text-white px-8 py-3.5 rounded-full text-lg font-bold hover:bg-white/5 transition-all hover:border-white/40" to="/register">
+                Contact Sales
+              </Link>
             </div>
+            <p className="mt-8 text-sm text-gray-500">No credit card required · 14-day free trial · Cancel anytime</p>
           </div>
         </div>
       </section>
