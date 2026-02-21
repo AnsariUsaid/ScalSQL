@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ShaderBackground from '../components/ui/shader-background';
+import DisplayCards from '../components/ui/display-cards';
 
 const LandingPage = () => {
   useEffect(() => {
@@ -68,21 +70,16 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden hero-bg">
-        <div className="neon-wave animate-pulse-slow"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background-base"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/40 text-primary text-xs font-semibold uppercase tracking-wider mb-8 animate-[fadeIn_1s_ease-out_0.2s_both]">
-            <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-            Now Integrated with AWS Aurora
-          </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-white animate-[slideUp_0.8s_ease-out_0.4s_both]">
+      <section className="relative pt-36 pb-24 lg:pt-48 lg:pb-40 overflow-hidden hero-bg">
+        {/* WebGL Shader Background */}
+        <ShaderBackground />
+        {/* Overlay so shader doesn't overpower text */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050507]/60 via-[#2e1065]/20 to-background-base pointer-events-none" style={{zIndex: 1}}></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style={{zIndex: 2}}>
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-white animate-[slideUp_0.8s_ease-out_0.2s_both]">
             Talk to Your Data, <br className="hidden md:block"/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-blue-500 glow-text">Not Your Database</span>
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-300 animate-[slideUp_0.8s_ease-out_0.6s_both]">
-            Transform natural English questions into optimized SQL queries instantly. Built on AWS for enterprise-grade security and auto-scaling performance.
-          </p>
           <div className="mt-10 flex justify-center gap-4 animate-[slideUp_0.8s_ease-out_0.8s_both]">
             <Link className="bg-gradient-to-r from-primary to-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)] transition-all flex items-center gap-2 group hover:-translate-y-1" to="/register">
               Start Generating for Free
@@ -94,7 +91,7 @@ const LandingPage = () => {
             </a>
           </div>
 
-          <div className="mt-16 mx-auto max-w-4xl animate-float">
+          <div className="mt-32 mx-auto max-w-4xl animate-float">
             <div className="shader-gradient-border p-[1px]">
               <div className="bg-surface-dark rounded-xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500 relative">
                 <div className="absolute inset-0 bg-primary/5 pointer-events-none animate-pulse"></div>
@@ -140,42 +137,29 @@ const LandingPage = () => {
 
       <section className="py-20 bg-background-base relative border-t border-white/5" id="features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 reveal-on-scroll">
-            <h2 className="text-3xl font-bold text-white mb-4">Why Manual SQL is Obsolete</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">Stop wasting engineering hours on ad-hoc queries. Empower your business teams to get answers instantly.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="glass-card p-8 rounded-2xl reveal-on-scroll" style={{transitionDelay: '100ms'}}>
-              <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-center mb-6">
-                <span className="material-icons text-red-500">block</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">SQL Barriers</h3>
-              <p className="text-gray-400 leading-relaxed">
-                Business analysts wait days for data engineers to write complex queries, slowing down decision-making processes critical for growth.
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            {/* Left: copy */}
+            <div className="flex-1 reveal-on-scroll">
+              <span className="text-primary font-semibold tracking-wider uppercase text-sm border border-primary/30 px-3 py-1 rounded-full bg-primary/5">The Problem</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mt-6 mb-4">Why Manual SQL is&nbsp;Obsolete</h2>
+              <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                Stop wasting engineering hours on ad-hoc queries. Empower your business teams to get answers instantly — without waiting days for a data engineer.
               </p>
+              <ul className="space-y-3 text-gray-400 text-sm">
+                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">✕</span> Business analysts blocked, waiting on engineers</li>
+                <li className="flex items-start gap-2"><span className="text-yellow-400 mt-0.5">✕</span> Engineering time drained on repetitive data tasks</li>
+                <li className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">✕</span> Unoptimized SQL locks tables and inflates cloud costs</li>
+              </ul>
             </div>
-            <div className="glass-card p-8 rounded-2xl hover:-translate-y-2 transition-all duration-500 relative overflow-hidden border-primary/30 reveal-on-scroll" style={{transitionDelay: '300ms'}}>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full filter blur-3xl translate-x-10 -translate-y-10 animate-pulse"></div>
-              <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-lg flex items-center justify-center mb-6">
-                <span className="material-icons text-primary">hourglass_empty</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">IT Bottlenecks</h3>
-              <p className="text-gray-400 leading-relaxed">
-                Engineering teams are bogged down by repetitive data retrieval tasks instead of focusing on core product features and infrastructure.
-              </p>
-            </div>
-            <div className="glass-card p-8 rounded-2xl reveal-on-scroll" style={{transitionDelay: '500ms'}}>
-              <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-center mb-6">
-                <span className="material-icons text-blue-500">trending_up</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Scaling Issues</h3>
-              <p className="text-gray-400 leading-relaxed">
-                Traditional query methods don't optimize for cloud costs. Poorly written human SQL can lock tables and spike AWS bills.
-              </p>
+
+            {/* Right: stacked display cards */}
+            <div className="flex-1 flex justify-center items-center py-16 reveal-on-scroll">
+              <DisplayCards />
             </div>
           </div>
         </div>
       </section>
+
 
       <section className="py-24 bg-background-dark border-y border-white/5 relative overflow-hidden" id="architecture">
         <div className="absolute inset-0 pointer-events-none z-0 opacity-30">
