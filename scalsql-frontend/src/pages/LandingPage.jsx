@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ShaderBackground from '../components/ui/shader-background';
 import DisplayCards from '../components/ui/display-cards';
+import AnimatedArchitecture from '../components/ui/cyber-architecture';
 
 const LandingPage = () => {
   useEffect(() => {
@@ -161,55 +162,7 @@ const LandingPage = () => {
       </section>
 
 
-      <section className="py-24 bg-background-dark border-y border-white/5 relative overflow-hidden" id="architecture">
-        <div className="absolute inset-0 pointer-events-none z-0 opacity-30">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern height="40" id="grid" patternUnits="userSpaceOnUse" width="40">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(168, 85, 247, 0.1)" strokeWidth="1"></path>
-              </pattern>
-            </defs>
-            <rect fill="url(#grid)" height="100%" width="100%"></rect>
-          </svg>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16 reveal-on-scroll">
-            <span className="text-primary font-semibold tracking-wider uppercase text-sm border border-primary/30 px-3 py-1 rounded-full bg-primary/5">Architecture</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mt-4">Powered by AWS Cloud Intelligence</h2>
-          </div>
-          <div className="relative line-trigger">
-            <div className="hidden md:block absolute top-[40px] left-[16%] w-[68%] h-1 bg-white/5 z-0 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary to-blue-500 animated-line w-full rounded-full origin-left transform scale-x-0 transition-transform duration-[2000ms] ease-out delay-500" id="connect-line" style={{transform: 'scaleX(0)'}}></div>
-            </div>
-            <div className="grid md:grid-cols-3 gap-12 relative z-10">
-              <div className="text-center group reveal-on-scroll" style={{transitionDelay: '0ms'}}>
-                <div className="w-20 h-20 mx-auto bg-surface-dark border-2 border-primary/30 group-hover:border-primary rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.1)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-300 mb-6 relative z-10">
-                  <span className="material-icons text-4xl text-gray-300 group-hover:text-white transition-colors">person_outline</span>
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-br from-primary to-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg">1</div>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">User Query</h3>
-                <p className="text-sm text-gray-400">Natural language input via web dashboard or API endpoint.</p>
-              </div>
-              <div className="text-center group reveal-on-scroll" style={{transitionDelay: '300ms'}}>
-                <div className="w-24 h-24 mx-auto bg-primary/10 backdrop-blur-md border-2 border-primary rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(168,85,247,0.3)] mb-6 relative z-10 animate-pulse-slow">
-                  <span className="material-icons text-5xl text-primary drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]">cloud_sync</span>
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-br from-primary to-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg">2</div>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">AWS AI Processing</h3>
-                <p className="text-sm text-gray-400">Request hits AWS Lambda, processed by LLM on SageMaker with schema context.</p>
-              </div>
-              <div className="text-center group reveal-on-scroll" style={{transitionDelay: '600ms'}}>
-                <div className="w-20 h-20 mx-auto bg-surface-dark border-2 border-primary/30 group-hover:border-primary rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.1)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-300 mb-6 relative z-10">
-                  <span className="material-icons text-4xl text-gray-300 group-hover:text-white transition-colors">table_chart</span>
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-br from-primary to-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg">3</div>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">Instant Result</h3>
-                <p className="text-sm text-gray-400">Optimized SQL is executed on RDS and data is returned as JSON/CSV.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <AnimatedArchitecture />
 
       <section className="py-20 bg-background-base">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
