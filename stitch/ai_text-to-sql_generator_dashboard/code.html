@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Text-to-SQL Generator Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c2bee",
+                        "primary-hover": "#7a25cf",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0f0a14", // Even darker for contrast
+                        "surface-dark": "#1e1626",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Space Mono", "monospace"], // Fallback to generic mono if needed
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "1.5rem", "xl": "2rem", "2xl": "3rem", "full": "9999px"},
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'blob': 'blob 7s infinite',
+                        'flow': 'flow 10s linear infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        flow: {
+                            '0%': { backgroundPosition: '0 0' },
+                            '100%': { backgroundPosition: '100% 0' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 22, 38, 0.5); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #473b54; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8c2bee; 
+        }.glass-panel {
+            background: rgba(15, 10, 20, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-input {
+            background: rgba(30, 22, 38, 0.6);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(140, 43, 238, 0.2);
+        }
+        .glass-input:focus-within {
+            border-color: #8c2bee;
+            box-shadow: 0 0 15px rgba(140, 43, 238, 0.3);
+        }.code-keyword { color: #d19a66; }.code-function { color: #61afef; }.code-string { color: #98c379; }.code-operator { color: #c678dd; }.code-number { color: #e5c07b; }.bg-mesh {
+            background-color: #0f0a14;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(270,60%,20%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(285,60%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(270,60%,20%,1) 0, transparent 50%);
+        }
+        .blob-1 { background: rgba(140, 43, 238, 0.3); }
+        .blob-2 { background: rgba(59, 130, 246, 0.3); }
+        .blob-3 { background: rgba(236, 72, 153, 0.3); }.grid-overlay {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }.neon-wave {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150%;
+            height: 200px;
+            background: 
+                repeating-linear-gradient(90deg, 
+                    transparent 0, 
+                    transparent 48%, 
+                    rgba(140, 43, 238, 0.5) 50%, 
+                    transparent 52%, 
+                    transparent 100%),
+                linear-gradient(to bottom, transparent, rgba(140, 43, 238, 0.2), transparent);
+            background-size: 200% 100%;
+            filter: blur(8px);
+            opacity: 0.6;
+            z-index: -1;
+            mix-blend-mode: screen;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+        .neon-wave::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C400,200 600,0 800,100 S1200,200 1600,100' stroke='rgba(168, 85, 247, 0.6)' stroke-width='2' fill='none' /%3E%3Cpath d='M0,100 C300,50 500,150 800,100 S1300,50 1600,100' stroke='rgba(139, 92, 246, 0.5)' stroke-width='3' fill='none' /%3E%3Cpath d='M0,100 C450,150 650,50 800,100 S1150,150 1600,100' stroke='rgba(192, 38, 211, 0.4)' stroke-width='2' fill='none' /%3E%3C/svg%3E");
+            background-size: 100% 100%;
+            filter: drop-shadow(0 0 10px #a855f7);
+            animation: pulse-slow 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-dark text-slate-100 min-h-screen overflow-x-hidden relative selection:bg-primary selection:text-white">
+<div class="fixed inset-0 w-full h-full overflow-hidden -z-10 bg-mesh">
+<div class="absolute top-0 left-1/4 w-96 h-96 blob-1 rounded-full mix-blend-screen filter blur-3xl opacity-40 animate-blob"></div>
+<div class="absolute top-0 right-1/4 w-96 h-96 blob-2 rounded-full mix-blend-screen filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+<div class="absolute -bottom-32 left-1/3 w-96 h-96 blob-3 rounded-full mix-blend-screen filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+<div class="absolute inset-0 grid-overlay"></div>
+</div>
+<div class="relative flex flex-col min-h-screen">
+<header class="flex items-center justify-between px-6 py-5 lg:px-12 border-b border-white/5 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(140,43,238,0.3)]">
+<span class="material-symbols-outlined">dataset</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-xl font-bold leading-none tracking-tight">AI SQL Architect</h1>
+<span class="text-xs text-slate-400 font-medium tracking-wide">ENTERPRISE EDITION <span class="text-primary ml-1">v2.0 Beta</span></span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<nav class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5">
+<button class="px-4 py-1.5 rounded-full text-sm font-medium bg-primary text-white shadow-lg shadow-primary/25 transition-all">Generator</button>
+<button class="px-4 py-1.5 rounded-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all">History</button>
+<button class="px-4 py-1.5 rounded-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all">Settings</button>
+</nav>
+<button class="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-blue-500 p-[2px] cursor-pointer">
+<img alt="User profile avatar showing a young woman" class="rounded-full w-full h-full object-cover border-2 border-background-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD7pzZyl0ywOs5DTtc4rKjPfTgsYeO4PbDk5OoouyyxGqh70KgpuJV-HeGSWM-xvdB-SQV3aEIQ-M1hI17x9yPxNGg_CWaG0O3X98RgTGabMJAwWEsfvnVNgr8NbqZw_IaG-CIZod0tmAydRPe2G8DSm9I_K0-TFpd2qQrGCfJkyNrgSx5J3hlPkuT1W3Gy43x98Od0pkpV4LPTdx-8ybpG5AoTnMj8lPJc5TRZrK789Z2Tf1CkS9UpxZeDFEA_fyU9l4uBIn3MW6O"/>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 lg:p-12 flex flex-col gap-8">
+<section class="flex flex-col gap-6 items-center w-full relative">
+<div class="neon-wave"></div>
+<div class="text-center space-y-2 max-w-2xl relative z-10">
+<h2 class="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 tracking-tight pb-2">
+                        Transform Language into Data
+                    </h2>
+<p class="text-slate-400 text-lg">Describe your data needs in plain English. Our AI architect constructs the perfect query instantly.</p>
+</div>
+<div class="w-full max-w-3xl glass-input rounded-2xl p-2 flex flex-col md:flex-row items-stretch gap-2 transition-all duration-300 group mt-12">
+<div class="flex-1 relative">
+<textarea class="w-full h-full min-h-[60px] md:min-h-[50px] bg-transparent border-none text-white placeholder-slate-500 focus:ring-0 resize-none py-3 px-4 text-lg leading-relaxed" placeholder="e.g., Show me the top 5 customers by revenue from last month who are active..."></textarea>
+<div class="absolute bottom-3 right-3 flex gap-2">
+<button class="p-1.5 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors" title="Voice Input">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+<button class="p-1.5 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors" title="Upload Schema">
+<span class="material-symbols-outlined text-[20px]">upload_file</span>
+</button>
+</div>
+</div>
+<button class="bg-primary hover:bg-primary-hover text-white font-bold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(140,43,238,0.4)] hover:shadow-[0_0_30px_rgba(140,43,238,0.6)] transition-all duration-300 flex items-center justify-center gap-2 group/btn whitespace-nowrap">
+<span class="material-symbols-outlined animate-pulse">auto_awesome</span>
+<span>Generate SQL</span>
+</button>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full mt-4">
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="glass-panel rounded-2xl overflow-hidden flex flex-col h-full min-h-[400px]">
+<div class="flex items-center justify-between px-5 py-3 border-b border-white/5 bg-white/[0.02]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">code</span>
+<span class="text-sm font-semibold text-slate-300">Generated Query</span>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors" title="Copy">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors" title="Save">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+</button>
+</div>
+</div>
+<div class="flex-1 p-5 font-mono text-sm leading-relaxed overflow-auto bg-[#0d0d10] relative group">
+<pre><code><span class="code-keyword">SELECT</span> 
+    c.customer_name,
+    c.status,
+    <span class="code-function">SUM</span>(o.total_amount) <span class="code-keyword">AS</span> total_revenue
+<span class="code-keyword">FROM</span> 
+    customers c
+<span class="code-keyword">JOIN</span> 
+    orders o <span class="code-keyword">ON</span> c.id <span class="code-operator">=</span> o.customer_id
+<span class="code-keyword">WHERE</span> 
+    o.order_date <span class="code-operator">&gt;=</span> <span class="code-string">'2023-10-01'</span>
+    <span class="code-keyword">AND</span> o.order_date <span class="code-operator">&lt;</span> <span class="code-string">'2023-11-01'</span>
+    <span class="code-keyword">AND</span> c.status <span class="code-operator">=</span> <span class="code-string">'Active'</span>
+<span class="code-keyword">GROUP BY</span> 
+    c.customer_name, c.status
+<span class="code-keyword">ORDER BY</span> 
+    total_revenue <span class="code-keyword">DESC</span>
+<span class="code-keyword">LIMIT</span> <span class="code-number">5</span>;</code></pre>
+<div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+                                    Run Query
+                                </button>
+</div>
+</div>
+<div class="bg-[#15101a] px-4 py-2 text-xs text-slate-500 border-t border-white/5 flex justify-between items-center">
+<span>Execution time: 0.04s</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Connected: Production DB</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-7 flex flex-col gap-6">
+<div class="glass-panel rounded-2xl overflow-hidden flex flex-col h-full min-h-[400px]">
+<div class="flex items-center justify-between px-5 py-3 border-b border-white/5 bg-white/[0.02]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-400 text-sm">table_view</span>
+<span class="text-sm font-semibold text-slate-300">Live Preview</span>
+<span class="bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full border border-primary/20 font-bold">5 Rows</span>
+</div>
+<button class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors">
+                                Export CSV <span class="material-symbols-outlined text-[14px]">download</span>
+</button>
+</div>
+<div class="flex-1 overflow-x-auto">
+<table class="w-full text-left text-sm whitespace-nowrap">
+<thead class="bg-white/5 text-slate-300 uppercase text-xs font-semibold tracking-wider">
+<tr>
+<th class="px-6 py-4">Customer Name</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 text-right">Total Revenue</th>
+<th class="px-6 py-4 text-center">Trend</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/[0.03] transition-colors group">
+<td class="px-6 py-4 font-medium text-white flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs font-bold border border-indigo-500/30">
+                                                AC
+                                            </div>
+                                            Acme Corp
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-slate-300 group-hover:text-white">$110,000.00</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-green-400 text-[20px]">trending_up</span>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.03] transition-colors group bg-white/[0.01]">
+<td class="px-6 py-4 font-medium text-white flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs font-bold border border-purple-500/30">
+                                                SC
+                                            </div>
+                                            Soylent Corp
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-slate-300 group-hover:text-white">$85,000.00</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-green-400 text-[20px]">trending_up</span>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.03] transition-colors group">
+<td class="px-6 py-4 font-medium text-white flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-300 flex items-center justify-center text-xs font-bold border border-blue-500/30">
+                                                GL
+                                            </div>
+                                            Globex
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                                                Warning
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-slate-300 group-hover:text-white">$52,000.00</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-red-400 text-[20px]">trending_down</span>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.03] transition-colors group bg-white/[0.01]">
+<td class="px-6 py-4 font-medium text-white flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-pink-500/20 text-pink-300 flex items-center justify-center text-xs font-bold border border-pink-500/30">
+                                                UC
+                                            </div>
+                                            Umbrella Corp
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-slate-300 group-hover:text-white">$45,200.00</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-green-400 text-[20px]">trending_up</span>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.03] transition-colors group">
+<td class="px-6 py-4 font-medium text-white flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-orange-500/20 text-orange-300 flex items-center justify-center text-xs font-bold border border-orange-500/30">
+                                                SI
+                                            </div>
+                                            Stark Ind
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-slate-300 group-hover:text-white">$38,900.00</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-slate-500 text-[20px]">trending_flat</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-5 py-3 border-t border-white/5 flex items-center justify-between">
+<span class="text-xs text-slate-500">Showing 5 of 128 results</span>
+<div class="flex gap-1">
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg bg-primary text-white text-xs font-medium shadow-lg shadow-primary/20">1</button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-slate-400 transition-colors text-xs">2</button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-slate-400 transition-colors text-xs">3</button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-8">
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<div>
+<h3 class="text-sm font-bold text-white">Instant Generation</h3>
+<p class="text-xs text-slate-400">Under 50ms latency</p>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">shield</span>
+</div>
+<div>
+<h3 class="text-sm font-bold text-white">Secure Context</h3>
+<p class="text-xs text-slate-400">Enterprise-grade encryption</p>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<h3 class="text-sm font-bold text-white">99.8% Accuracy</h3>
+<p class="text-xs text-slate-400">Trained on 1M+ schemas</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

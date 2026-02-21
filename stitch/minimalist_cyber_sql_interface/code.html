@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Minimalist Cyber SQL Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c2bee",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#191022",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                    animation: {
+                        'gradient-xy': 'gradient-xy 15s ease infinite',
+                        'typing': 'typing 3.5s steps(40, end), blink-caret .75s step-end infinite'
+                    },
+                    keyframes: {
+                        'gradient-xy': {
+                            '0%, 100%': {
+                                'background-size': '400% 400%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        'typing': {
+                            'from': { width: '0' },
+                            'to': { width: '100%' }
+                        },
+                        'blink-caret': {
+                            'from, to': { 'border-color': 'transparent' },
+                            '50%': { 'border-color': '#8c2bee' }
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for cyber aesthetic */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(25, 16, 34, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(140, 43, 238, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(140, 43, 238, 0.6);
+        }
+        
+        .glass-panel {
+            background: rgba(20, 17, 24, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(30, 25, 35, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Animated background simulation */
+        .cyber-bg {
+            background: linear-gradient(-45deg, #0f0c13, #1e112a, #2a0e38, #100b14);
+            background-size: 400% 400%;
+            animation: gradient-xy 15s ease infinite;
+        }
+        
+        /* Grid overlay pattern */
+        .cyber-grid {
+            background-image: linear-gradient(rgba(140, 43, 238, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(140, 43, 238, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen overflow-hidden selection:bg-primary selection:text-white">
+<!-- Background Layer -->
+<div class="fixed inset-0 cyber-bg z-0" data-alt="Abstract dark purple and black gradient background representing cyber space"></div>
+<div class="fixed inset-0 cyber-grid z-0 pointer-events-none"></div>
+<div class="relative z-10 flex h-full w-full overflow-hidden">
+<!-- Glass Sidebar -->
+<aside class="glass-panel w-72 flex flex-col h-full flex-shrink-0 transition-all duration-300">
+<!-- Header -->
+<div class="p-6 border-b border-white/5">
+<div class="flex items-center gap-3">
+<div class="bg-gradient-to-tr from-primary to-purple-400 rounded-full w-10 h-10 flex items-center justify-center shadow-[0_0_15px_rgba(140,43,238,0.5)]">
+<span class="material-symbols-outlined text-white">dataset</span>
+</div>
+<div>
+<h1 class="text-white text-lg font-bold tracking-wide">SQLizer</h1>
+<p class="text-primary text-xs font-mono tracking-wider">CYBER_v2.0</p>
+</div>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-8">
+<!-- Recent Queries -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-2 px-2 text-slate-400">
+<span class="material-symbols-outlined text-lg">history</span>
+<span class="text-xs font-bold uppercase tracking-wider">Recent Queries</span>
+</div>
+<button class="group flex flex-col gap-1 p-3 rounded-xl hover:bg-white/5 transition-colors text-left border border-transparent hover:border-white/10">
+<span class="text-sm font-medium text-slate-200 group-hover:text-primary transition-colors truncate w-full">Active users last month</span>
+<span class="text-xs font-mono text-slate-500 truncate w-full">SELECT * FROM users WHERE...</span>
+</button>
+<button class="group flex flex-col gap-1 p-3 rounded-xl hover:bg-white/5 transition-colors text-left border border-transparent hover:border-white/10">
+<span class="text-sm font-medium text-slate-200 group-hover:text-primary transition-colors truncate w-full">Revenue by region Q3</span>
+<span class="text-xs font-mono text-slate-500 truncate w-full">SELECT region, SUM(rev)...</span>
+</button>
+<button class="group flex flex-col gap-1 p-3 rounded-xl hover:bg-white/5 transition-colors text-left border border-transparent hover:border-white/10">
+<span class="text-sm font-medium text-slate-200 group-hover:text-primary transition-colors truncate w-full">Failed login attempts</span>
+<span class="text-xs font-mono text-slate-500 truncate w-full">SELECT count(*) FROM logs...</span>
+</button>
+</div>
+<!-- Schema Visualizer -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-2 px-2 text-slate-400">
+<span class="material-symbols-outlined text-lg">schema</span>
+<span class="text-xs font-bold uppercase tracking-wider">Schema</span>
+</div>
+<!-- Table Item -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer text-slate-300">
+<span class="material-symbols-outlined text-primary text-sm">table_view</span>
+<span class="text-sm font-mono">public.users</span>
+</div>
+<div class="pl-8 flex flex-col gap-1 border-l border-white/5 ml-3">
+<div class="text-xs text-slate-500 hover:text-white cursor-pointer py-0.5">id <span class="text-slate-600">int8</span></div>
+<div class="text-xs text-slate-500 hover:text-white cursor-pointer py-0.5">email <span class="text-slate-600">varchar</span></div>
+<div class="text-xs text-slate-500 hover:text-white cursor-pointer py-0.5">status <span class="text-slate-600">bool</span></div>
+</div>
+</div>
+<!-- Table Item -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer text-slate-300">
+<span class="material-symbols-outlined text-primary text-sm">table_view</span>
+<span class="text-sm font-mono">public.orders</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Action -->
+<div class="p-4 border-t border-white/5">
+<button class="flex w-full items-center justify-center gap-2 rounded-full h-10 bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 transition-all">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>New Project</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto relative flex flex-col">
+<!-- Top Spacing for aesthetics -->
+<div class="h-10"></div>
+<div class="w-full max-w-5xl mx-auto px-6 pb-20 flex flex-col gap-8">
+<!-- Floating Input Card -->
+<div class="glass-card rounded-[2rem] p-1.5 flex flex-col md:flex-row gap-2 shadow-[0_0_50px_rgba(140,43,238,0.15)] relative overflow-hidden group">
+<!-- Glow effect behind -->
+<div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+<div class="flex-1 relative">
+<textarea class="w-full h-full min-h-[60px] md:min-h-[80px] bg-transparent border-0 text-white placeholder-slate-400 focus:ring-0 resize-none py-4 px-6 text-lg font-medium leading-relaxed" placeholder="Describe your data request in plain English..."></textarea>
+</div>
+<div class="flex items-center justify-end px-2 pb-2 md:pb-0">
+<button class="h-12 px-8 rounded-full bg-primary hover:bg-primary/90 text-white font-bold tracking-wide shadow-lg shadow-primary/30 transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined">auto_fix_high</span>
+<span>Generate</span>
+</button>
+</div>
+</div>
+<!-- Terminal Output Window -->
+<div class="flex flex-col gap-2 animate-fade-in-up" style="animation-delay: 0.1s;">
+<div class="flex items-center justify-between px-4">
+<span class="text-xs font-mono text-primary uppercase tracking-widest flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                            Terminal Output
+                        </span>
+<div class="flex gap-1">
+<div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+</div>
+</div>
+<div class="bg-black/80 rounded-xl border border-white/10 p-6 font-mono text-sm shadow-2xl relative overflow-hidden">
+<!-- Top bar decoration -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-purple-500 to-transparent opacity-50"></div>
+<div class="flex">
+<span class="text-slate-500 mr-4 select-none">1</span>
+<div class="typing-container w-full overflow-hidden whitespace-nowrap">
+<span class="text-purple-400">SELECT</span>
+<span class="text-blue-300">*</span>
+<span class="text-purple-400">FROM</span>
+<span class="text-yellow-300">users</span>
+<span class="text-purple-400">WHERE</span>
+<span class="text-orange-300">active</span>
+<span class="text-slate-300">=</span>
+<span class="text-green-400">1</span>
+<span class="text-purple-400">ORDER BY</span>
+<span class="text-orange-300">created_at</span>
+<span class="text-purple-400">DESC</span>;
+                                <span class="inline-block w-2.5 h-5 bg-primary align-middle ml-1 animate-[blink-caret_1s_step-end_infinite]"></span>
+</div>
+</div>
+<div class="flex mt-1 opacity-50">
+<span class="text-slate-600 mr-4 select-none">2</span>
+</div>
+<!-- Terminal Actions -->
+<div class="absolute top-4 right-4 flex gap-2">
+<button class="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors" title="Copy SQL">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+<button class="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors" title="Edit">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Data Result Table -->
+<div class="flex flex-col gap-2 mt-4 animate-fade-in-up" style="animation-delay: 0.2s;">
+<div class="flex items-center justify-between px-4">
+<span class="text-xs font-mono text-slate-400 uppercase tracking-widest">Query Result (5 rows)</span>
+<div class="flex gap-2">
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-white transition-colors">
+<span class="material-symbols-outlined text-sm">download</span>
+<span>CSV</span>
+</button>
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-white transition-colors">
+<span class="material-symbols-outlined text-sm">bar_chart</span>
+<span>Visualize</span>
+</button>
+</div>
+</div>
+<div class="glass-card rounded-2xl overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/10 bg-black/20">
+<th class="p-4 text-xs font-bold text-slate-300 uppercase tracking-wider">ID</th>
+<th class="p-4 text-xs font-bold text-slate-300 uppercase tracking-wider">Name</th>
+<th class="p-4 text-xs font-bold text-slate-300 uppercase tracking-wider">Email</th>
+<th class="p-4 text-xs font-bold text-slate-300 uppercase tracking-wider">Role</th>
+<th class="p-4 text-xs font-bold text-slate-300 uppercase tracking-wider">Status</th>
+<th class="p-4 text-xs font-bold text-slate-300 uppercase tracking-wider">Created At</th>
+</tr>
+</thead>
+<tbody class="font-mono text-sm text-slate-200">
+<tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+<td class="p-4 text-slate-500">#8392</td>
+<td class="p-4 font-medium text-white group-hover:text-primary transition-colors">Alex Chen</td>
+<td class="p-4">alex.c@example.com</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300 text-xs border border-purple-500/30">Admin</span></td>
+<td class="p-4"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active</div></td>
+<td class="p-4 text-slate-400">2023-10-15</td>
+</tr>
+<tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+<td class="p-4 text-slate-500">#8393</td>
+<td class="p-4 font-medium text-white group-hover:text-primary transition-colors">Sarah Jones</td>
+<td class="p-4">s.jones@design.co</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-slate-700/50 text-slate-300 text-xs border border-slate-600/30">Editor</span></td>
+<td class="p-4"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active</div></td>
+<td class="p-4 text-slate-400">2023-10-16</td>
+</tr>
+<tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+<td class="p-4 text-slate-500">#8394</td>
+<td class="p-4 font-medium text-white group-hover:text-primary transition-colors">Michael Ross</td>
+<td class="p-4">mike.r@corp.net</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-slate-700/50 text-slate-300 text-xs border border-slate-600/30">Viewer</span></td>
+<td class="p-4"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Pending</div></td>
+<td class="p-4 text-slate-400">2023-10-18</td>
+</tr>
+<tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+<td class="p-4 text-slate-500">#8395</td>
+<td class="p-4 font-medium text-white group-hover:text-primary transition-colors">Emily Blunt</td>
+<td class="p-4">emily.b@studio.io</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-slate-700/50 text-slate-300 text-xs border border-slate-600/30">Editor</span></td>
+<td class="p-4"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Inactive</div></td>
+<td class="p-4 text-slate-400">2023-10-20</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="p-4 text-slate-500">#8396</td>
+<td class="p-4 font-medium text-white group-hover:text-primary transition-colors">David Kim</td>
+<td class="p-4">dkim@tech.kr</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300 text-xs border border-purple-500/30">Admin</span></td>
+<td class="p-4"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active</div></td>
+<td class="p-4 text-slate-400">2023-10-21</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer -->
+<div class="px-4 py-3 border-t border-white/10 bg-black/20 flex items-center justify-between text-xs text-slate-400">
+<span>Showing 1-5 of 124 results</span>
+<div class="flex gap-2">
+<button class="hover:text-white disabled:opacity-50" disabled="">Previous</button>
+<button class="hover:text-white">Next</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Optional subtle overlay vignette -->
+<div class="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] z-20"></div>
+</body></html>
