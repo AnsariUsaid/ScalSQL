@@ -135,7 +135,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-background-base relative border-t border-white/5" id="features">
+      <section className="py-32 bg-background-base relative border-t border-white/5" id="features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             {/* Left: copy */}

@@ -36,6 +36,7 @@ export default {
         'scan': 'scan 2s linear infinite',
         'glow-pulse': 'glowPulse 2s infinite alternate',
         'shimmer': 'shimmer 2.5s infinite linear',
+        'card-float': 'cardFloat 5s ease-in-out infinite',
       },
       keyframes: {
         float: {
@@ -61,7 +62,12 @@ export default {
         shimmer: {
             '0%': { backgroundPosition: '-1000px 0' },
             '100%': { backgroundPosition: '1000px 0' }
-        }
+        },
+        cardFloat: {
+            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+            '25%': { transform: 'translateY(-8px) rotate(0.8deg)' },
+            '75%': { transform: 'translateY(4px) rotate(-0.5deg)' },
+        },
       }
     },
   },
