@@ -1,15 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-background text-textMain antialiased selection:bg-primary selection:text-white;
+    @apply bg-background-base text-gray-100 antialiased selection:bg-primary selection:text-white font-display overflow-x-hidden;
   }
 }
 
 @layer utilities {
   .glass-panel {
     @apply bg-surface/80 backdrop-blur-md border border-border;
+  }
+}
+
+/* Custom Stitch Styles */
+.hero-bg {
+  background: radial-gradient(circle at 50% 10%, #2e1065 0%, #050507 60%);
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-wave {
+  position: absolute;
+  top: 20%;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: url(https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?q=80&w=2080&auto=format&fit=crop) no-repeat center center;
+  background-size: cover;
+  opacity: 0.3;
+  mix-blend-mode: color-dodge;
+  filter: hue-rotate(20deg) contrast(1.2);
+}
+
+.glass-card {
+  background: rgba(10, 10, 12, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.15);
+  background: rgba(10, 10, 12, 0.8);
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+}
+
+.code-block {
+  font-family: "Fira Code", monospace;
+}
+
+.progress-bar-scan {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-scan::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.8), transparent);
+  transform: translateX(-100%);
+  animation: scan-bar 2s infinite;
+}
+
+@keyframes scan-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.reveal-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.shader-gradient-border {
+  position: relative;
+  background: #0a0a0c;
+  border-radius: 0.75rem;
+  z-index: 1;
+}
+
+.shader-gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 0.85rem;
+  padding: 2px;
+  background: linear-gradient(45deg, #a855f7, #3b82f6, #a855f7);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
+  animation: border-rotate 4s linear infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes border-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: dash 3s linear forwards;
+  animation-play-state: paused;
+}
+
+.animated-line.playing {
+  animation-play-state: running;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
   }
 }
