@@ -173,7 +173,8 @@ export default function LaserFlow({
     const uFalloff = uni('u_falloff');
 
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
+      // Cap pixel ratio to 1 for massive performance boost on high-DPI
+      const dpr = Math.min(window.devicePixelRatio || 1, 1);
       canvas.width = canvas.clientWidth * dpr;
       canvas.height = canvas.clientHeight * dpr;
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -183,7 +184,14 @@ export default function LaserFlow({
     window.addEventListener('resize', resize);
 
     const start = performance.now();
+    let isVisible = true;
+    
     const render = () => {
+      if (!isVisible) {
+        animRef.current = requestAnimationFrame(render);
+        return;
+      }
+
       const t = (performance.now() - start) / 1000;
       gl.uniform1f(uTime, t);
       gl.uniform2f(uRes, canvas.width, canvas.height);
@@ -209,9 +217,23 @@ export default function LaserFlow({
 
     animRef.current = requestAnimationFrame(render);
 
+    // Pause WebGL rendering when scrolled out of view
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    observer.observe(canvas);
+
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
+      observer.disconnect();
+      if (gl) {
+        gl.deleteProgram(program);
+        gl.deleteBuffer(buf);
+      }
     };
   }, [color, horizontalBeamOffset, verticalBeamOffset, horizontalSizing, verticalSizing, wispDensity, wispSpeed, wispIntensity, flowSpeed, flowStrength, fogIntensity, fogScale, fogFallSpeed, decay, falloffStart]);
 

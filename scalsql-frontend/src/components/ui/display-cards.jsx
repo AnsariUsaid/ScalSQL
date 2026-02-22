@@ -55,10 +55,10 @@ export default function DisplayCards({ cards }) {
       titleClassName: 'text-red-400',
       animationDelay: '0s',
       className: [
-        '[grid-area:stack]',
-        'hover:-translate-y-14',
+        'absolute z-10 left-0 top-0',
+        'hover:-translate-y-4 hover:-translate-x-4',
         // Greyed overlay
-        'before:absolute before:inset-0 before:rounded-2xl before:bg-background/60 before:content-[""]',
+        'before:absolute before:inset-0 before:rounded-2xl before:bg-[#060010]/60 before:content-[""]',
         'before:transition-opacity before:duration-500',
         'hover:before:opacity-0',
         'grayscale-[70%] hover:grayscale-0 transition-all duration-500',
@@ -73,10 +73,9 @@ export default function DisplayCards({ cards }) {
       titleClassName: 'text-yellow-400',
       animationDelay: '0.4s',
       className: [
-        '[grid-area:stack]',
-        'translate-x-28 translate-y-16',
-        'hover:-translate-y-2 hover:translate-x-28',
-        'before:absolute before:inset-0 before:rounded-2xl before:bg-background/50 before:content-[""]',
+        'absolute z-20 left-8 top-12 sm:left-12 sm:top-16',
+        'hover:translate-x-3 sm:hover:translate-x-8 hover:-translate-y-2',
+        'before:absolute before:inset-0 before:rounded-2xl before:bg-[#060010]/50 before:content-[""]',
         'before:transition-opacity before:duration-500',
         'hover:before:opacity-0',
         'grayscale-[70%] hover:grayscale-0 transition-all duration-500',
@@ -85,15 +84,14 @@ export default function DisplayCards({ cards }) {
     {
       icon: <TrendingUp className="size-5 text-blue-300" />,
       title: 'Scaling Issues',
-      description: 'Poorly written SQL spikes AWS bills',
+      description: 'Poorly written SQL spikes cloud bills',
       date: '📈 Cloud Cost Risk',
       iconClassName: 'text-blue-500',
       titleClassName: 'text-blue-400',
       animationDelay: '0.8s',
       className: [
-        '[grid-area:stack]',
-        'translate-x-56 translate-y-32',
-        'hover:translate-y-20 hover:translate-x-56',
+        'absolute z-30 left-16 top-24 sm:left-24 sm:top-32',
+        'hover:translate-y-4 sm:hover:translate-y-8 hover:translate-x-4 sm:hover:translate-x-12',
         'transition-all duration-500',
       ].join(' '),
     },
@@ -102,9 +100,9 @@ export default function DisplayCards({ cards }) {
   const displayCards = cards || defaultCards;
 
   return (
-    <div className="grid [grid-template-areas:'stack'] place-items-center pb-40 pr-56">
+    <div className="relative w-[320px] sm:w-[500px] h-[360px] sm:h-[450px] mx-auto mt-10">
       {displayCards.map((cardProps, index) => (
-        <DisplayCard key={index} {...cardProps} />
+        <DisplayCard key={index} {...cardProps} className={cn("w-64 sm:w-[26rem] h-36 sm:h-44", cardProps.className)} />
       ))}
     </div>
   );

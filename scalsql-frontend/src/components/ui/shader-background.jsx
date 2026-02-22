@@ -163,8 +163,17 @@ const ShaderBackground = () => {
     };
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Reduce the rendering resolution to improve performance on high-DPI screens
+      // By using a fixed pixel ratio of 1 (or even 0.5), we drastically cut the number of fragment shader calculations
+      const pixelRatio = Math.min(window.devicePixelRatio, 1);
+      
+      canvas.width = window.innerWidth * pixelRatio;
+      canvas.height = window.innerHeight * pixelRatio;
+      
+      // Keep CSS size at 100% of window
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
@@ -173,34 +182,60 @@ const ShaderBackground = () => {
 
     let animationFrameId;
     const startTime = Date.now();
+    let isVisible = true;
 
     const render = () => {
+      if (!isVisible) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
+
       const currentTime = (Date.now() - startTime) / 1000;
       gl.clearColor(0.0, 0.0, 0.0, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(programInfo.program);
       gl.uniform2f(programInfo.uniformLocations.resolution, canvas.width, canvas.height);
       gl.uniform1f(programInfo.uniformLocations.time, currentTime);
+      
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      
+      // Need to re-point the attribute on each render in some WebGL implementations
       gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 2, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+      
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       animationFrameId = requestAnimationFrame(render);
     };
 
-    animationFrameId = requestAnimationFrame(render);
+    render();
+
+    // Pause WebGL rendering when scrolled out of view
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    observer.observe(canvas);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+      
+      // Cleanup WebGL context
+      if (gl) {
+        gl.deleteProgram(shaderProgram);
+        gl.deleteBuffer(positionBuffer);
+      }
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute top-0 left-0 w-full h-full"
-      style={{ zIndex: 0 }}
+      className="absolute top-0 left-0"
+      style={{ zIndex: 0, pointerEvents: 'none' }}
     />
   );
 };

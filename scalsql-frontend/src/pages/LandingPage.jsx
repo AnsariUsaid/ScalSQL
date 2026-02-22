@@ -347,7 +347,7 @@ const LandingPage = () => {
 
         {/* Card floating on top */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="rounded-3xl overflow-hidden p-12 md:p-20 text-center bg-[#0a0a0c]/80 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] reveal-on-scroll">
+          <div className="rounded-3xl overflow-hidden p-12 md:p-20 text-center bg-[#0a0a0c]/95 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] reveal-on-scroll">
             <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary border border-primary/30 rounded-full px-4 py-1 mb-6 bg-primary/5">Limited Time Offer</span>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-5 leading-tight">Ready to democratize <br className="hidden md:block" />your data?</h2>
             <p className="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">Join 500+ companies using AI SQL Cloud Architect to speed up analytics by 10x.</p>
