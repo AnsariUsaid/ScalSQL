@@ -18,12 +18,11 @@ app.get('/health', (req, res) => {
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const configRoutes = require('./routes/configRoutes');
+const queryRoutes = require('./routes/queryRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/config', configRoutes);
-
-// We will mount routes here later
-// app.use('/api/query', queryRoutes);
+app.use('/api/query', queryRoutes);
 // app.use('/api/config', configRoutes);
 
 module.exports = app;
