@@ -5,10 +5,7 @@ const PORT = process.env.PORT || 5001;
 
 async function startServer() {
   try {
-    // We will connect and sync the DB in a later step
-    // await sequelize.authenticate();
-    // await sequelize.sync();
-    // console.log('Database connection has been established successfully.');
+    // No Core DB needed for demo mode — using in-memory store
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

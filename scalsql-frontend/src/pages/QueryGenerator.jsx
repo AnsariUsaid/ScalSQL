@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Database, Terminal, Play, Save, Copy, Mic, Check, AlertCircle, RefreshCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../lib/api';
 
 const mockSchema = [
   { table: 'users', count: 12500, columns: ['id', 'email', 'name', 'role', 'created_at'] },
@@ -16,19 +17,59 @@ const QueryGenerator = () => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
-  const handleGenerate = () => {
-    if (!nlQuery) return;
+  const [connections, setConnections] = useState([]);
+  const [selectedConnection, setSelectedConnection] = useState('');
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    const fetchConnections = async () => {
+      try {
+        const data = await apiFetch('/api/config/db');
+        setConnections(data);
+        if (data.length > 0) {
+          setSelectedConnection(data[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to fetch connections:', err);
+      }
+    };
+    fetchConnections();
+  }, []);
+
+  const handleGenerate = async () => {
+    if (!nlQuery || !selectedConnection) return;
     setIsGenerating(true);
-    // Mock API Call
-    setTimeout(() => {
-      setGeneratedSql(`SELECT \n  DATE(timestamp) as query_date, \n  COUNT(*) as total_queries, \n  AVG(execution_time_ms) as avg_latency \nFROM queries_log \nWHERE \n  status = 'SUCCESS' \n  AND timestamp >= CURRENT_DATE - INTERVAL '7 days' \nGROUP BY 1 \nORDER BY 1 DESC;`);
+    setErrorMsg('');
+    try {
+      const data = await apiFetch('/api/query/generate', {
+        method: 'POST',
+        body: JSON.stringify({ question: nlQuery, connection_id: selectedConnection })
+      });
+      setGeneratedSql(data.sql);
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
       setIsGenerating(false);
-    }, 1500);
+    }
   };
 
-  const handleExecute = () => {
-    // Navigate to results page with mock state
-    navigate('/dashboard/results');
+  const handleExecute = async () => {
+    if (!generatedSql || !selectedConnection) return;
+    setIsExecuting(true);
+    setErrorMsg('');
+    try {
+      const data = await apiFetch('/api/query/execute', {
+        method: 'POST',
+        body: JSON.stringify({ sql: generatedSql, question: nlQuery, connection_id: selectedConnection })
+      });
+      // Navigate to results page with actual executed data state
+      navigate('/dashboard/results', { state: { queryResult: data, sql: generatedSql } });
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setIsExecuting(false);
+    }
   };
 
   const copyToClipboard = () => {
@@ -46,10 +87,23 @@ const QueryGenerator = () => {
             <h1 className="text-3xl font-bold">Query Generator</h1>
             <p className="text-textMuted mt-1">Translate plain English into optimized SQL.</p>
           </div>
-          <div className="flex gap-2">
-            <span className="px-3 py-1 bg-surfaceHighlight border border-border rounded text-xs font-semibold flex items-center gap-2">
-              <Database className="w-3 h-3 text-primary" /> Active RDS: Sales Prod
+          <div className="flex gap-2 items-center">
+            <span className="text-xs font-semibold text-textMuted flex items-center gap-2">
+              <Database className="w-3 h-3 text-primary" /> Active RDS:
             </span>
+            <select
+              value={selectedConnection}
+              onChange={(e) => setSelectedConnection(e.target.value)}
+              className="px-3 py-1 bg-surfaceHighlight border border-border rounded text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+            >
+              {connections.length === 0 ? (
+                <option value="">No Connections Found</option>
+              ) : (
+                connections.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))
+              )}
+            </select>
           </div>
         </div>
 
@@ -70,7 +124,8 @@ const QueryGenerator = () => {
             <button className="absolute bottom-2 left-0 p-2 rounded-full bg-surfaceHighlight hover:bg-surface border border-border text-textMuted transition-colors flex items-center justify-center group" title="Voice to Text (Coming Soon)">
               <Mic className="w-4 h-4 group-hover:text-primary transition-colors" />
             </button>
-            <div className="absolute bottom-2 right-0 flex gap-3">
+            <div className="absolute bottom-2 right-0 flex gap-3 items-center">
+               {errorMsg && <span className="text-xs text-red-500 bg-red-500/10 px-2 py-1 rounded">{errorMsg}</span>}
                <button 
                   onClick={() => setNlQuery('')} 
                   className="px-4 py-2 text-sm font-medium text-textMuted hover:text-textMain transition-colors"
@@ -79,7 +134,7 @@ const QueryGenerator = () => {
                </button>
               <button 
                 onClick={handleGenerate}
-                disabled={!nlQuery || isGenerating}
+                disabled={!nlQuery || isGenerating || !selectedConnection}
                 className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg font-bold transition-all disabled:opacity-50 shadow-md shadow-primary/20"
               >
                 {isGenerating ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Terminal className="w-4 h-4" />}
@@ -152,10 +207,11 @@ const QueryGenerator = () => {
                 </div>
                 <button 
                   onClick={handleExecute}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold transition-all shadow-lg shadow-green-600/20"
+                  disabled={isExecuting}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold transition-all shadow-lg shadow-green-600/20 disabled:opacity-50"
                 >
-                  <Play className="w-4 h-4 fill-current" />
-                  Execute Query
+                  {isExecuting ? <RefreshCcw className="w-4 h-4 fill-current animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
+                  {isExecuting ? 'Executing...' : 'Execute Query'}
                 </button>
              </div>
            )}

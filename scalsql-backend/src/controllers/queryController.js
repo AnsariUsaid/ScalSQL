@@ -1,7 +1,7 @@
-const { DBConnection, QueryLog } = require('../models');
 const { createInstitutionConnection } = require('../config/database');
 const { generateSQL } = require('../services/sagemakerService');
 const { validateSQL } = require('../utils/sqlValidator');
+const { connectionStore } = require('./configController');
 
 const generateQuery = async (req, res) => {
   try {
@@ -11,7 +11,7 @@ const generateQuery = async (req, res) => {
       return res.status(400).json({ error: 'Question and connection_id are required' });
     }
 
-    const connection = await DBConnection.findOne({ where: { id: connection_id, org_id: req.user.org_id } });
+    const connection = connectionStore.get(String(connection_id));
     if (!connection) {
       return res.status(404).json({ error: 'Database connection not found' });
     }
@@ -49,11 +49,8 @@ const executeQuery = async (req, res) => {
       return res.status(400).json({ error: validation.error });
     }
 
-    const connectionInfo = await DBConnection.findOne({ where: { id: connection_id, org_id: req.user.org_id } });
+    const connectionInfo = connectionStore.get(String(connection_id));
     if (!connectionInfo) return res.status(404).json({ error: 'Connection not found' });
-
-    const { decrypt } = require('../utils/encryption');
-    const { username, password } = JSON.parse(decrypt(connectionInfo.encrypted_credentials));
 
     // Create a temporary Sequelize connection
     const tempSequelize = createInstitutionConnection({
@@ -61,8 +58,8 @@ const executeQuery = async (req, res) => {
       host: connectionInfo.host,
       port: connectionInfo.port,
       database: connectionInfo.db_name,
-      username,
-      password,
+      username: connectionInfo.username,
+      password: connectionInfo.password,
     });
 
     const startTime = Date.now();
@@ -79,17 +76,7 @@ const executeQuery = async (req, res) => {
     }
 
     const executionTime = Date.now() - startTime;
-    tempSequelize.close();
-
-    // Log the query to Core DB
-    await QueryLog.create({
-      question: question || 'Manual Exec',
-      sql,
-      status: queryStatus,
-      execution_time: executionTime,
-      error_message: errorMessage,
-      user_id: req.user.id
-    });
+    await tempSequelize.close();
 
     if (queryStatus === 'error') {
       return res.status(400).json({ error: 'Database Execution Error', details: errorMessage });

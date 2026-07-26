@@ -1,15 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Building, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Building, ArrowRight, AlertCircle } from 'lucide-react';
+import { apiFetch } from '../lib/api';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [orgId, setOrgId] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Placeholder auth logic
-    navigate('/dashboard');
+    setIsLoading(true);
+    setError('');
+    try {
+      // Send email and password to backend login endpoint
+      const data = await apiFetch('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
+      // Save JWT token
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -64,6 +85,13 @@ const Login = () => {
             <p className="text-textMuted mb-8">Enter your credentials to access your account.</p>
 
             <form onSubmit={handleLogin} className="space-y-5">
+              {error && (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-sm text-red-500">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="text-sm border-none font-medium text-textMuted ml-1 block">Organization ID</label>
                 <div className="relative">
@@ -73,6 +101,8 @@ const Login = () => {
                   <input
                     type="text"
                     required
+                    value={orgId}
+                    onChange={(e) => setOrgId(e.target.value)}
                     className="block w-full pl-10 pr-3 py-3 border border-border rounded-xl bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
                     placeholder="hospital-ny-01"
                   />
@@ -88,6 +118,8 @@ const Login = () => {
                   <input
                     type="email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="block w-full pl-10 pr-3 py-3 border border-border rounded-xl bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
                     placeholder="analyst@domain.com"
                   />
@@ -103,6 +135,8 @@ const Login = () => {
                   <input
                     type="password"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="block w-full pl-10 pr-3 py-3 border border-border rounded-xl bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
                     placeholder="••••••••"
                   />
@@ -130,9 +164,10 @@ const Login = () => {
 
               <button
                 type="submit"
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primaryHover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-background transition-all mt-6"
+                disabled={isLoading}
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primaryHover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-background transition-all mt-6 disabled:opacity-50"
               >
-                Sign In
+                {isLoading ? 'Signing In...' : 'Sign In'}
                 <ArrowRight className="ml-2 h-5 w-5 opacity-70 group-hover:translate-x-1 transition-transform" />
               </button>
             </form>

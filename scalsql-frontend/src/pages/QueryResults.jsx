@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, Table, BarChart2, AlertCircle, RefreshCw, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const mockData = {
   columns: ['query_date', 'total_queries', 'avg_latency_ms'],
@@ -18,6 +18,20 @@ const mockData = {
 
 const QueryResults = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { queryResult, sql } = location.state || {};
+
+  const displayCols = queryResult?.data?.length > 0 
+    ? Object.keys(queryResult.data[0]) 
+    : mockData.columns;
+
+  const displayRows = queryResult?.data?.length > 0
+    ? queryResult.data.map(row => Object.values(row))
+    : mockData.rows;
+
+  const displaySQL = sql || `SELECT DATE(timestamp) as query_date, COUNT(*) as total_queries, AVG(execution_time_ms) as avg_latency\nFROM queries_log WHERE status = 'SUCCESS' GROUP BY 1 ORDER BY 1 DESC;`;
+  
+  const displayTime = queryResult?.execution_time || 124;
 
   return (
     <div className="p-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] flex flex-col gap-6">
@@ -27,7 +41,7 @@ const QueryResults = () => {
             <CheckCircle2 className="w-6 h-6 text-green-500" />
             Query Results
           </h1>
-          <p className="text-textMuted mt-1">Execution successful. 7 rows returned in 124ms.</p>
+          <p className="text-textMuted mt-1">Execution successful. {displayRows.length} rows returned in {displayTime}ms.</p>
         </div>
         
         <div className="flex gap-3">
@@ -51,10 +65,7 @@ const QueryResults = () => {
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <span className="text-[10px] uppercase font-bold text-textMuted tracking-wider bg-surface px-2 py-1 rounded">Read-Only Executed</span>
         </div>
-        <pre>
-          SELECT DATE(timestamp) as query_date, COUNT(*) as total_queries, AVG(execution_time_ms) as avg_latency
-          FROM queries_log WHERE status = 'SUCCESS' GROUP BY 1 ORDER BY 1 DESC;
-        </pre>
+        <pre>{displaySQL}</pre>
       </div>
 
       {/* Results Table */}
@@ -72,13 +83,13 @@ const QueryResults = () => {
           <table className="w-full text-left border-collapse">
             <thead className="sticky top-0 bg-surfaceHighlight/80 backdrop-blur z-10 border-b border-border">
               <tr>
-                {mockData.columns.map((col, i) => (
+                {displayCols.map((col, i) => (
                   <th key={i} className="py-3 px-6 text-xs font-bold uppercase tracking-wider text-textMuted first:pl-6">{col}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mockData.rows.map((row, i) => (
+              {displayRows.map((row, i) => (
                 <motion.tr 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -88,7 +99,7 @@ const QueryResults = () => {
                 >
                   {row.map((cell, j) => (
                     <td key={j} className={`py-4 px-6 text-sm ${j === 0 ? 'font-medium font-mono' : 'text-textMuted'} first:pl-6 group-hover:text-textMain transition-colors`}>
-                      {cell}
+                      {String(cell)}
                     </td>
                   ))}
                 </motion.tr>
@@ -99,7 +110,7 @@ const QueryResults = () => {
 
         {/* Pagination */}
         <div className="p-4 border-t border-border flex justify-between items-center bg-surfaceHighlight/20">
-          <span className="text-xs text-textMuted font-medium">Showing 1 to 7 of 7 entries</span>
+          <span className="text-xs text-textMuted font-medium">Showing 1 to {displayRows.length} of {displayRows.length} entries</span>
           <div className="flex gap-1">
             <button disabled className="p-1 rounded bg-surface border border-border text-textMuted opacity-50 cursor-not-allowed"><ChevronLeft className="w-4 h-4" /></button>
             <button className="px-3 py-1 rounded bg-primary text-white text-xs font-bold shadow-sm">1</button>
